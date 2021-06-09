@@ -35,17 +35,19 @@ defmodule Psomattic do
   ]
 
   @doc """
+  Checks all the stores concurrently.
+
   Returns a map of each store and its stock status and price
   """
   def apply_checks() do
     tasks =
       for {name, url, stock_selector, stock_matcher, price_selector} <- @check_data do
-        ref =
+        task =
           Task.async(fn ->
             check(url, stock_selector, stock_matcher, price_selector)
           end)
 
-        {name, ref}
+        {name, task}
       end
 
     for {name, task} <- tasks, into: %{} do
